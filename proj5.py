@@ -1,8 +1,14 @@
+#-*- coding: utf-8 -*-
 from Bio import AlignIO
 from Bio import motifs
+from Bio.Alphabet import generic_dna
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+from Bio.Align import MultipleSeqAlignment
+from Bio import Phylo
 import os
 
-os.system('cls')
+os.system('clear')
 x = 0
 
 def alignmentread():
@@ -17,19 +23,45 @@ def alignmentread():
 
 def alignmentparse():
 	#przyklad funkcji alignio.parse z rozdziału 6.1
-	pass
+	alignments = AlignIO.parse("file.phy", "phylip")
+	for alignment in alignments:
+    		print(alignment)
+    		print("")
 
 def alignmentwrite():
-	#przyklad funkcji alignio.write z rozdziału 6.2
-	pass
+	#przyklad funkcji alignio.write z rozdziału 6.2i
+	align1 = MultipleSeqAlignment([
+             SeqRecord(Seq("ACTGCTAGCTAG", generic_dna), id="Alpha"),
+             SeqRecord(Seq("ACT-CTAGCTAG", generic_dna), id="Beta"),
+             SeqRecord(Seq("ACTGCTAGDTAG", generic_dna), id="Gamma"),
+         ])
+
+	align2 = MultipleSeqAlignment([
+             SeqRecord(Seq("GTCAGC-AG", generic_dna), id="Delta"),
+             SeqRecord(Seq("GACAGCTAG", generic_dna), id="Epsilon"),
+             SeqRecord(Seq("GTCAGCTAG", generic_dna), id="Zeta"),
+         ])
+
+	align3 = MultipleSeqAlignment([
+             SeqRecord(Seq("ACTAGTACAGCTG", generic_dna), id="Eta"),
+             SeqRecord(Seq("ACTAGTACAGCT-", generic_dna), id="Theta"),
+             SeqRecord(Seq("-CTACTACAGGTG", generic_dna), id="Iota"),
+         ])
+
+	my_alignments = [align1, align2, align3]
+	AlignIO.write(my_alignments, "alignmentwrite.phy", "phylip")
+	print "Zapisano sekwencje do pliku alignmentwrite.phy"
 
 def alignmentslice():
 	#przyklad obrabiania dopasowań z rozdziału 6.3
-	pass
-
+	
 def clustalw():
 	#przyklad narzedzia clustalW z rozdziału 6.4.1 + mozna walnac to drzewo zo jest pod koniec tego rozdzialu
-	pass
+	align = AlignIO.read("opuntia.aln", "clustal")
+	print(align)
+	print ("")
+	tree = Phylo.read("opuntia.dnd", "newick")
+	Phylo.draw_ascii(tree)
 
 def muscle():
 	#przyklad narzedzia MUSCLE z rozdziału 6.4.2
@@ -126,7 +158,7 @@ while (x != '0'):
 				'0':wyjscie,
 				}
 	try:
-		os.system('cls')
+		os.system('clear')
 		print "\nWybrales opcje: " + str(x) + " " + str(cases[x])
 		if x != '0':
 			cases[x]()
@@ -136,4 +168,4 @@ while (x != '0'):
 		print "\nzly znak"
 
 	raw_input("\n\nPress Enter to continue...")
-	os.system('cls')
+	os.system('clear')
