@@ -6,6 +6,11 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Align import MultipleSeqAlignment
 from Bio import Phylo
+from Bio.Align.Applications import MuscleCommandline
+from StringIO import StringIO
+from Bio.Emboss.Applications import NeedleCommandline
+from Bio import motifs
+
 import os
 
 os.system('clear')
@@ -46,7 +51,7 @@ def alignmentwrite():
              SeqRecord(Seq("ACTAGTACAGCTG", generic_dna), id="Eta"),
              SeqRecord(Seq("ACTAGTACAGCT-", generic_dna), id="Theta"),
              SeqRecord(Seq("-CTACTACAGGTG", generic_dna), id="Iota"),
-         ])
+i         ])
 
 	my_alignments = [align1, align2, align3]
 	AlignIO.write(my_alignments, "alignmentwrite.phy", "phylip")
@@ -54,7 +59,7 @@ def alignmentwrite():
 
 def alignmentslice():
 	#przyklad obrabiania dopasowań z rozdziału 6.3
-	
+        pass	
 def clustalw():
 	#przyklad narzedzia clustalW z rozdziału 6.4.1 + mozna walnac to drzewo zo jest pod koniec tego rozdzialu
 	align = AlignIO.read("opuntia.aln", "clustal")
@@ -65,15 +70,33 @@ def clustalw():
 
 def muscle():
 	#przyklad narzedzia MUSCLE z rozdziału 6.4.2
-	pass
+	muscle_cline = MuscleCommandline(input="opuntia.fasta")
+	stdout, stderr = muscle_cline()
+	align = AlignIO.read(StringIO(stdout), "fasta")
+	print(align)
 
 def emboss():
 	#przyklad narzedzia emboss z rozdziału 6.4.5
-	pass
+	needle_cline = NeedleCommandline(asequence="alpha.faa", bsequence="beta.faa",gapopen=10, gapextend=0.5, outfile="needle.txt")
+	stdout, stderr = needle_cline()
+	print(stdout + stderr)
+	align = AlignIO.read("needle.txt", "emboss")
+	print(align)
 
 def creatingamotif():
 	# 14.1.1  Creating a motif from instances + 14.1.2  Creating a sequence logo
-	pass
+	instances = [Seq("TACAA"),
+	Seq("TACGC"),
+	Seq("TACAC"),
+	Seq("TACCC"),
+	Seq("AACCC"),
+	Seq("AATGC"),
+	Seq("AATGC"),
+	]
+	m = motifs.create(instances)
+	print(m)
+	print(m.counts)
+	print "Slowo konsensusowe " + m.consensus
 
 def jaspar():
 	# 14.2.1  JASPAR
@@ -90,11 +113,20 @@ def transfac():
 def writingmotifs():
 	#14.3  Writing motifs
 	pass
-
 def pwm():
 	# 14.4  Position-Weight Matrices
-	pass
+        instances = [Seq("TACAA"),
+        Seq("TACGC"),
+        Seq("TACAC"),
+        Seq("TACCC"),
+        Seq("AACCC"),
+        Seq("AATGC"),
+        Seq("AATGC"),
+        ]
+        m = motifs.create(instances)
 
+	pwm = m.counts.normalize(pseudocounts=0.5)
+	print(pwm)
 def pssm():
 	# 14.5  Position-Specific Scoring Matrices
 	pass
@@ -164,8 +196,9 @@ while (x != '0'):
 			cases[x]()
 		else:
 			print "\nDobranoc!"
-	except:
+	except IOError, error:
 		print "\nzly znak"
+		print"\n"+error
 
 	raw_input("\n\nPress Enter to continue...")
 	os.system('clear')
