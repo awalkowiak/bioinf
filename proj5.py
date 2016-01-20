@@ -51,15 +51,12 @@ def alignmentwrite():
              SeqRecord(Seq("ACTAGTACAGCTG", generic_dna), id="Eta"),
              SeqRecord(Seq("ACTAGTACAGCT-", generic_dna), id="Theta"),
              SeqRecord(Seq("-CTACTACAGGTG", generic_dna), id="Iota"),
-i         ])
+         ])
 
 	my_alignments = [align1, align2, align3]
 	AlignIO.write(my_alignments, "alignmentwrite.phy", "phylip")
 	print "Zapisano sekwencje do pliku alignmentwrite.phy"
 
-def alignmentslice():
-	#przyklad obrabiania dopasowań z rozdziału 6.3
-        pass	
 def clustalw():
 	#przyklad narzedzia clustalW z rozdziału 6.4.1 + mozna walnac to drzewo zo jest pod koniec tego rozdzialu
 	align = AlignIO.read("opuntia.aln", "clustal")
@@ -75,13 +72,6 @@ def muscle():
 	align = AlignIO.read(StringIO(stdout), "fasta")
 	print(align)
 
-def emboss():
-	#przyklad narzedzia emboss z rozdziału 6.4.5
-	needle_cline = NeedleCommandline(asequence="alpha.faa", bsequence="beta.faa",gapopen=10, gapextend=0.5, outfile="needle.txt")
-	stdout, stderr = needle_cline()
-	print(stdout + stderr)
-	align = AlignIO.read("needle.txt", "emboss")
-	print(align)
 
 def creatingamotif():
 	# 14.1.1  Creating a motif from instances + 14.1.2  Creating a sequence logo
@@ -98,21 +88,26 @@ def creatingamotif():
 	print(m.counts)
 	print "Slowo konsensusowe " + m.consensus
 
-def jaspar():
-	# 14.2.1  JASPAR
-	pass
-
-def meme():
-	# 14.2.2  MEME
-	pass
-
-def transfac():
-	# 14.2.3  TRANSFAC
-	pass
 
 def writingmotifs():
 	#14.3  Writing motifs
-	pass
+        instances = [Seq("TACAA"),
+        Seq("TACGC"),
+        Seq("TACAC"),
+        Seq("TACCC"),
+        Seq("AACCC"),
+        Seq("AATGC"),
+        Seq("AATGC"),
+        ]
+        m = motifs.create(instances)
+	with open("Arnt.sites") as handle:
+		 arnt = motifs.read(handle, "sites")
+	print "Motif in pfm format"
+	print(arnt.format("pfm"))
+	print "\n\n Motif in arnt format"
+	print(arnt.format("jaspar"))
+	print "\n\n Motif in transfac format"
+	print(arnt.format("transfac"))
 def pwm():
 	# 14.4  Position-Weight Matrices
         instances = [Seq("TACAA"),
@@ -129,19 +124,72 @@ def pwm():
 	print(pwm)
 def pssm():
 	# 14.5  Position-Specific Scoring Matrices
-	pass
+        instances = [Seq("TACAA"),
+        Seq("TACGC"),
+        Seq("TACAC"),
+        Seq("TACCC"),
+        Seq("AACCC"),
+        Seq("AATGC"),
+        Seq("AATGC"),
+        ]
+        m = motifs.create(instances)
+
+        pwm = m.counts.normalize(pseudocounts=0.5)
+
+	pssm = pwm.log_odds()
+	print(pssm)
 
 def instances():
 	# 14.6  Searching for instances
-	pass
+	instances = [Seq("TACAA"),
+        Seq("TACGC"),
+        Seq("TACAC"),
+        Seq("TACCC"),
+        Seq("AACCC"),
+        Seq("AATGC"),
+        Seq("AATGC"),
+        ]
+        m = motifs.create(instances)
+        print "Szukane instancje"
+	print(m) 
+	test_seq=Seq("TACACTGCATTACAACCACTGCCGATCGGGATCGTATTCGAACGCATCGACTAGCTACGATCGTACGATCGACTATGCATCGAAGTCGATCAAGCATTA", m.alphabet)
+	print "\nDlugosc sekwencji testowej:" 
+	print len(test_seq)
+	print "\nZnalezione instancje w sekwencji testowej: "
+	for pos, seq in m.instances.search(test_seq):
+		print("%i %s" % (pos, seq))
 
 def comparing():
 	# 14.8  Comparing motifs
-	pass
+        instances = [Seq("TACAA"),
+        Seq("TACGC"),
+        Seq("TACAC"),
+        Seq("TACCC"),
+        Seq("AACCC"),
+        Seq("AATGC"),
+        Seq("AATGC"),
+        ]
+        m = motifs.create(instances)
+        pwm = m.counts.normalize(pseudocounts=0.5)
+	background = {'A':0.3,'C':0.2,'G':0.2,'T':0.3}
+        pssm = pwm.log_odds(background)
+	
+	with open("REB1.pfm") as handle:
+		m_reb1 = motifs.read(handle, "pfm")
+	m_reb1.consensus
+	print(m_reb1.counts)
+	m_reb1.pseudocounts = {'A':0.6, 'C': 0.4, 'G': 0.4, 'T': 0.6}
+	m_reb1.background = {'A':0.3,'C':0.2,'G':0.2,'T':0.3}
+	pssm_reb1 = m_reb1.pssm
+	print(pssm_reb1)
+	distance, offset = pssm.dist_pearson(pssm_reb1)
+	print("distance = %5.3g" % distance)
+	print("offset = %5.3g" % offset)
 
-def denovo():
-	# 14.9  De novo motif finding
-	pass
+	print "Offset to roznica miedzy poczatkami slow konsensusowych, w badanym wypadku najlepsze dopasowanie slow konsensusowych jest nastepujace: "
+	print "m: bbTACGCbb"
+	print "m_reb1: GTTACCCGG"
+
 
 def wyjscie():
 	print "Dobranoc!"
@@ -151,20 +199,14 @@ while (x != '0'):
 	x = raw_input(	"	11.alignmentread.\n" +
 					"	12.alignmentparse.\n" +
 					"	13.alignmentwrite.\n" +
-					"	14.alignmentslice.\n" +
 					"	15.clustalw.\n" +
-					"	16.muscle.\n" +
-					"	17.emboss.\n\n" +
+					"	16.muscle.\n\n" +
 					"	21.creating a motif.\n" +
-					"	22.reading motifs (jaspar).\n" +
-					"	23.reading motifs (meme).\n" +
-					"	24.reading motifs (transfac).\n" +
 					"	25.writing motifs.\n" +
 					"	26.Position-Weight Matrices.\n" +
 					"	27.Position-Specific Scoring Matrices.\n" +
 					"	28.Instances.\n" +
-					"	29.Comparing.\n" +
-					"	210.de novo.\n\n" +
+					"	29.Comparing.\n\n" +
 
 					"0. Wyjscie\n\n" +
 					"Wybierz co chcesz zrobic: " )
@@ -172,20 +214,14 @@ while (x != '0'):
 	cases = {	'11':alignmentread,
 				'12':alignmentparse,
 				'13':alignmentwrite,
-				'14':alignmentslice,
 				'15':clustalw,
 				'16':muscle,
-				'17':emboss,
 				'21':creatingamotif,
-				'22':jaspar,
-				'23':meme,
-				'24':transfac,
 				'25':writingmotifs,
 				'26':pwm,
 				'27':pssm,
 				'28':instances,
 				'29':comparing,
-				'210':denovo,
 
 				'0':wyjscie,
 				}
