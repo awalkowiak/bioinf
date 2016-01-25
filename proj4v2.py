@@ -140,7 +140,7 @@ def dopasowanie_profil_profil(S, dopasowanie1, dopasowanie2):
 	dopasowanie = []
 	i = len(S)-1
 	j = len(S[0])-1
-	print i, j
+	#print i, j
 	while i > 0 and j > 0:
 		kolumna = []	
 		if S[i-1][j-1] >= S[i][j-1] and S[i-1][j-1] >= S[i-1][j]:
@@ -179,75 +179,50 @@ def dopasowanie_profil_profil(S, dopasowanie1, dopasowanie2):
 		dopasowaniewynik.append(tmp)
 	
 	return dopasowaniewynik
-def dopasowanie_dwoch_slow(S, slowo1, slowo2):
-	dopasowanie = []
-	i = len(S)-1
-	j = len(S[0])-1
-	while i > 0 and j > 0:
-		kolumna = []
-		if S[i-1][j-1] >= S[i][j-1] and S[i-1][j-1] >= S[i-1][j]:
-			i -= 1
-			j -= 1
-			for row in range(len(dopasowanie1)):
-				literka = dopasowanie1[row][i]
-				kolumna.append(literka)
-			for row in range(len(dopasowanie2)):
-				literka = dopasowanie2[row][j]
-				kolumna.append(literka)
-		elif S[i][j-1] >= S[i-1][j-1] and S[i][j-1] >= S[i-1][j]:
-			j -= 1
-			for row in range(len(dopasowanie1)):
-				literka = '-'
-				kolumna.append(literka)
-			for row in range(len(dopasowanie2)):
-				literka = dopasowanie2[row][j]
-				kolumna.append(literka)
-		else:	
-			i -= 1
-			for row in range(len(dopasowanie1)):
-				literka = dopasowanie1[row][i]
-				kolumna.append(literka)
-			for row in range(len(dopasowanie2)):
-				literka = '-'
-				kolumna.append(literka)
-		dopasowanie.append(kolumna)
-	dopasowanie.reverse()
-	return dopasowanie
-	
-
 	
 dane1 = pobieranie_danych('u')
 macierz_podobienstwa = pobieranie_macierzy('macierz.txt')
 slownik1 = okreslanie_slownika(dane1)
 profil1 = obliczanie_profilu(dane1, slownik1)
 sk1 = slowo_konsensusowe(slownik1, profil1)
-
+print "Wielodopasowanie z pliku 1:"
 for i in dane1:
 	print i
+print "\nMacierz podobienstwa liter:"
 for i in macierz_podobienstwa:
 	print i
-print slownik1
-print "\n"
+#print slownik1
+print "\nProfil wielodopasowania dla danych z pliku 1:"
 for i in profil1:
 	print i
-print sk1
+print "Slowo konsensusowe: " + str(sk1)
 
 print "\n"
 dane2 = pobieranie_danych('v')
 profil2 = obliczanie_profilu(dane2, slownik1)
 srpod = srednie_podobienstwo_kolumn_profili(profil1, profil2, macierz_podobienstwa, slownik1)
+print "\nWielodopasowanie z pliku 2:"
+for i in dane2:
+	print i
+print "\nProfil wielodopasowania dla danych z pliku 2:"
 for i in profil2:
 	print i
-print "\n"
+print "\nSrednie podobienstwo kolumn profili wielodopasowan z pliku 1 i 2"
 for i in srpod:
 	print i
 	
 maks_pod_dop_przedr = maks_podobienstwo_dopasowania_przedrostkow(srpod, dane1, dane2)
-print "\n"
+print "\nMaksymalne podobienstwo dopasowania przedrostkow:"
 for i in maks_pod_dop_przedr:
 	print i
 	
-print "\n"
+print "\nWynikowe wielodopasowanie na podstawie zlaczania profili"
+for i in dane1:
+	print i
+print ""
+for i in dane2:
+	print i
+print ""
 wynik = dopasowanie_profil_profil(maks_pod_dop_przedr, dane1, dane2)
 for i in wynik:
 	print i
@@ -256,11 +231,9 @@ tmp =[]
 wynik = []
 for i in dane1:
 	tmp.append(i)
-print tmp
-for i in tmp:
-	print i
-#print tmp[0]
 c=len(tmp) -1
+print "\n\nKLASTERYZACJA"
+print "Poszczegolne kroki klasteryzacji (wybierane slowa do dopasowania):"
 while  c > 0:
 	slowowyj1 = []
 	slowowyj2 = []
@@ -288,6 +261,7 @@ while  c > 0:
 		slowowyj2 = tmp[1]
 	tmp1=[]
 	tmp2=[]
+	print "\nwybrane klastry do zlaczenia:"
 	print slowowyj1
 	print slowowyj2
 	if len(slowowyj1[0]) == 1: tmp1.append(slowowyj1)
@@ -305,9 +279,14 @@ while  c > 0:
 	idxj = tmp.index(slowowyj2)
 	tmp.remove(slowowyj2)
 	c-=1
+	print "\nPozostale klastry:"
 	for i in tmp:
 		print i
 	print "===="
 	
+print "ostateczny wynik klasteryzacji dla sekwencji:"
+for i in dane1:
+	print i
+print ""
 for i in tmp[0]:
 	print i
